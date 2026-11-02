@@ -23,7 +23,7 @@ The application receives a transcript file, uses a language model to interpret i
 | Technology | Purpose |
 |---|---|
 | n8n | Workflow orchestration and automation |
-| `gemini-3.8-flash` | Transcript processing using an LLM |
+| Google Gemini API (`gemini-3.8-flash`) | Transcript processing using an LLM |
 | Google Sheets | Data storage |
 | Gmail | Email delivery |
 | JavaScript | Data manipulation and structuring in Code nodes |
@@ -75,7 +75,7 @@ To reduce incorrect interpretations and fabricated information, the processing f
 - Record unresolved questions as pending issues.
 - Preserve contradictions and ambiguities found in the transcript instead of arbitrarily choosing one interpretation.
 
-## Requirements
+## Requirements and Configuration
 
 To run the workflow, the following are required:
 
@@ -84,11 +84,22 @@ To run the workflow, the following are required:
 - A Google account with access to Google Sheets.
 - A Google account configured for sending messages through Gmail.
 
-Configure the following integrations in n8n:
-- Google Gemini API
-- Google OAuth2 credentials.
+### Credentials
 
-## Demonstration
-### Mail sent
+Configure the following integrations in n8n:
+- **Google Gemini API:** API key for LLM requests.
+- **Google OAuth2:** authentication for Google Sheets and Gmail integrations..
+
+## Examples
+### Input transcripts
+Example meeting transcripts used to test the workflow are available in the `examples/` directory. 
+
+| **Note:** All transcripts contain fictional data and were created exclusively for testing and demonstration purposes. They do not represent real meetings, participants, or organizations.
+
+### Email output
+The generated meeting summary is automatically sent to the email address provided in the initial form.
 <img width="1231" height="648" alt="image" src="https://github.com/user-attachments/assets/ef07cc8c-7b9f-4b86-94e5-ea69459e8ea1" />
 
+### Google Sheets output
+The extracted information is stored in Google Sheets for future reference and tracking.
+<img width="1906" height="516" alt="output sheets example" src="https://github.com/user-attachments/assets/accd6c3e-adaf-4017-8a04-a43b74626530" />
