@@ -1,0 +1,15 @@
+Camila: Vamos organizar as atividades para a entrega da plataforma.
+
+Diego: Eu vou corrigir os erros encontrados na tela de login até 10 de novembro de 2026.
+
+Elisa: Vou revisar os textos e as mensagens de erro até 11 de novembro de 2026.
+
+Felipe: Eu fico responsável por configurar o ambiente de homologação até 12 de novembro de 2026.
+
+Camila: Também vou preparar o roteiro de apresentação para o cliente até 13 de novembro de 2026.
+
+Diego: Precisamos ainda verificar se a integração com o serviço externo está funcionando corretamente.
+
+Elisa: Posso fazer essa verificação até 14 de novembro de 2026.
+
+Camila: Ótimo. As cinco atividades estão distribuídas. Vamos revisar o andamento no dia 15 de novembro.

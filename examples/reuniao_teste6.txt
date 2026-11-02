@@ -1,0 +1,15 @@
+André: A entrega do módulo de pagamentos está prevista para 20 de novembro de 2026.
+
+Patrícia: Na minha planilha, a data está como 22 de novembro de 2026.
+
+Roberto: Eu tinha entendido que seria no dia 25.
+
+André: Precisamos confirmar qual é a data correta antes de atualizar o cronograma.
+
+Patrícia: Concordo. Não devemos registrar nenhuma dessas datas como definitiva ainda.
+
+Roberto: Também precisamos confirmar quem fará a revisão final do módulo.
+
+André: Ainda não definimos essa pessoa.
+
+Patrícia: Então temos duas pendências: confirmar a data de entrega e definir o responsável pela revisão final.

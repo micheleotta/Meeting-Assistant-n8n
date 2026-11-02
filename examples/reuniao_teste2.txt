@@ -1,0 +1,13 @@
+Marina: Bom dia! Precisamos finalizar a interface da página inicial.
+
+Pedro: Eu posso cuidar da implementação, mas ainda não sei quando conseguirei terminar.
+
+Lucas: Também precisamos revisar o banco de dados.
+
+Marina: Certo. Vamos deixar essa revisão como uma tarefa, mas ainda precisamos definir quem será responsável.
+
+Pedro: Outro ponto: precisamos conversar com a equipe de design sobre as cores da aplicação.
+
+Marina: Vamos discutir isso na próxima reunião.
+
+Lucas: Então temos a interface e a revisão do banco de dados como tarefas, mas ainda faltam algumas definições.

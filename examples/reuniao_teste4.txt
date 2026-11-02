@@ -1,0 +1,13 @@
+Beatriz: Acho que poderíamos adicionar notificações por e-mail para os usuários.
+
+Eduardo: É uma boa ideia. Também poderíamos criar um painel de indicadores.
+
+Sofia: Gostei das sugestões, mas precisamos avaliar o esforço de desenvolvimento antes de aprovar qualquer uma delas.
+
+Beatriz: Concordo. Por enquanto, vamos implementar apenas a recuperação de senha, que já estava aprovada anteriormente.
+
+Eduardo: Eu fico responsável pela recuperação de senha até 18 de novembro de 2026.
+
+Sofia: Vou analisar o esforço necessário para as notificações e o painel, mas ainda não tenho um prazo para apresentar essa análise.
+
+Beatriz: Certo. Então a única implementação confirmada nesta reunião é a recuperação de senha.

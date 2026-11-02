@@ -1,0 +1,13 @@
+João: Precisamos decidir qual banco de dados será utilizado no projeto. Minha sugestão é PostgreSQL.
+
+Fernanda: Eu estava pensando em MongoDB, porque temos alguns dados que podem variar bastante.
+
+Rafael: Também poderíamos avaliar MySQL. Acho importante comparar as alternativas antes de escolher.
+
+João: Concordo. Não vamos tomar essa decisão hoje.
+
+Fernanda: Podemos pesquisar os custos e as características de cada tecnologia.
+
+Rafael: Certo. Ainda não temos responsáveis definidos para essa pesquisa nem uma data de entrega.
+
+João: Então vamos deixar a escolha do banco de dados para a próxima reunião.
