@@ -1,0 +1,15 @@
+Ana: Bom dia! Vamos começar nossa reunião sobre o desenvolvimento do sistema.
+
+João: A primeira etapa será desenvolver o módulo de autenticação.
+
+Ana: Concordo. João ficará responsável pelo desenvolvimento desse módulo.
+
+João: Consigo entregar até o dia 15 de novembro de 2026.
+
+Maria: Precisamos também definir qual banco de dados será utilizado.
+
+Ana: Vamos deixar essa definição para a próxima reunião.
+
+João: Certo. Também precisamos revisar a documentação do projeto.
+
+Ana: Combinado. Maria ficará responsável pela revisão da documentação até o dia 10 de novembro de 2026.
