@@ -1,0 +1,368 @@
+{
+  "name": "Meeting Assistant",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Meeting Assistant",
+        "formDescription": "Envie uma transcrição para gerar automaticamente uma ata de reunião",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Arquivo com a transcrição",
+              "fieldType": "file",
+              "fieldName": "arquivo",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "E-mail",
+              "fieldType": "email",
+              "fieldName": "email_destino",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.6,
+      "position": [
+        192,
+        0
+      ],
+      "id": "50bdcbd6-f395-4c09-882d-c1a26525ff06",
+      "name": "On form submission",
+      "webhookId": "d4135917-e046-438e-bac5-63e741c52f7d"
+    },
+    {
+      "parameters": {
+        "operation": "text",
+        "binaryPropertyName": "arquivo",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.2,
+      "position": [
+        368,
+        0
+      ],
+      "id": "1c91aac4-de02-4d0e-8e5e-aa81113b2bf3",
+      "name": "Extract from File"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "5bd394e1-e99a-41b3-b9c3-527ece8063bb",
+              "name": "transcricao",
+              "value": "={{ $json.data }}",
+              "type": "string"
+            },
+            {
+              "id": "8baac2da-d0ec-4fa2-a3dc-7b8cbad9eaad",
+              "name": "nome_arquivo",
+              "value": "={{ $('On form submission').first().binary.arquivo.fileName }}",
+              "type": "string"
+            },
+            {
+              "id": "70d4e5fb-2df5-4e94-b609-b825afcd56ee",
+              "name": "data_processamento",
+              "value": "={{ $now.toISO() }}",
+              "type": "string"
+            },
+            {
+              "id": "ecd284d0-f51f-4f2f-bf89-cc3dca3186e5",
+              "name": "email_destino",
+              "value": "={{ $('On form submission').first().json.email_destino }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        528,
+        0
+      ],
+      "id": "e78c0777-147a-464a-9e5b-63650a9edc47",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{\n  {\n    contents: [\n      {\n        role: \"user\",\n        parts: [\n          {\n            text: `Você é um assistente especializado em análise de reuniões.\n\nAnalise a transcrição fornecida e gere uma ata estruturada.\n\nREGRAS IMPORTANTES:\n1. Utilize exclusivamente as informações presentes na transcrição.\n2. Não invente informações, decisões, responsáveis ou prazos.\n3. Se o responsável por uma tarefa não estiver identificado, utilize \"Não informado\".\n4. Se não houver prazo mencionado, utilize \"Não informado\".\n5. Diferencie decisões efetivamente tomadas de sugestões.\n6. Não interprete uma sugestão como uma decisão aprovada.\n7. Se uma informação não estiver disponível, retorne uma lista vazia ou uma string vazia, conforme o campo.\n8. Escreva em português brasileiro.\n9. Seja objetivo e preserve o sentido original das falas.\n\nRetorne um objeto JSON com os seguintes campos:\n\n{\n  \"resumo\": \"Resumo geral da reunião\",\n  \"topicos\": [\n    \"Assunto discutido\"\n  ],\n  \"decisoes\": [\n    \"Decisão efetivamente tomada\"\n  ],\n  \"tarefas\": [\n    {\n      \"descricao\": \"Descrição da tarefa\",\n      \"responsavel\": \"Nome ou Não informado\",\n      \"prazo\": \"Prazo ou Não informado\"\n    }\n  ],\n  \"pendencias\": [\n    \"Questão que ainda precisa ser resolvida\"\n  ]\n}\n\nTRANSCRIÇÃO:\n\n${$json.transcricao}`\n          }\n        ]\n      }\n    ],\n    generationConfig: {\n      responseMimeType: \"application/json\",\n      temperature: 0.2\n    }\n  }\n}}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        704,
+        0
+      ],
+      "id": "b573a496-95f2-4215-8ecd-d8fc89005e88",
+      "name": "HTTP Request",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "7vlWZL7ThlJ0Tluw",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Recupera a resposta da API Gemini\nconst response = $input.first().json;\n\nconst source = $('Edit Fields').first().json;\n\n// Extrai o texto gerado pelo modelo\nconst responseText = response.candidates?.[0]?.content?.parts\n  ?.map(part => part.text || '')\n  .join('')\n  .trim();\n\nif (!responseText) {\n  throw new Error('O Gemini não retornou conteúdo textual.');\n}\n\n// Remove possíveis marcadores de Markdown\nconst cleanedText = responseText\n  .replace(/^```json\\s*/i, '')\n  .replace(/^```\\s*/i, '')\n  .replace(/\\s*```$/, '')\n  .trim();\n\n// Converte a resposta em objeto JSON\nlet analysis;\n\ntry {\n  analysis = JSON.parse(cleanedText);\n} catch (error) {\n  throw new Error(\n    'Não foi possível interpretar o JSON retornado pelo Gemini: ' +\n    error.message\n  );\n}\n\n// Validação básica\nif (\n  typeof analysis.resumo !== 'string' ||\n  !Array.isArray(analysis.topicos) ||\n  !Array.isArray(analysis.decisoes) ||\n  !Array.isArray(analysis.tarefas) ||\n  !Array.isArray(analysis.pendencias)\n) {\n  throw new Error('A estrutura retornada pelo Gemini é inválida.');\n}\n\n// Formata as tarefas para armazenamento na planilha\nconst tarefasFormatadas = analysis.tarefas.map(tarefa => {\n  return [\n    `Tarefa: ${tarefa.descricao || 'Não informado'}`,\n    `Responsável: ${tarefa.responsavel || 'Não informado'}`,\n    `Prazo: ${tarefa.prazo || 'Não informado'}`\n  ].join(' | ');\n});\n\nreturn [\n  {\n    json: {\n      data_processamento: source.data_processamento,\n      arquivo: source.nome_arquivo,\n      email_destino: $('Edit Fields').first().json.email_destino,\n      resumo: analysis.resumo,\n      topicos: analysis.topicos.join('\\n'),\n      decisoes: analysis.decisoes.join('\\n'),\n      tarefas: tarefasFormatadas.join('\\n'),\n      pendencias: analysis.pendencias.join('\\n')\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        896,
+        0
+      ],
+      "id": "200f9574-2872-4bb5-9a26-6efeceade754",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "104Q4u-qK6F9aVuVv1BT9Nlf4JT48Dnr7iJ0rzTCVeP4",
+          "mode": "list",
+          "cachedResultName": "Meeting Assistant",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/104Q4u-qK6F9aVuVv1BT9Nlf4JT48Dnr7iJ0rzTCVeP4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Meetings",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/104Q4u-qK6F9aVuVv1BT9Nlf4JT48Dnr7iJ0rzTCVeP4/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "data_processamento": "={{ $json.data_processamento }}",
+            "arquivo": "={{ $json.arquivo }}",
+            "resumo": "={{ $json.resumo }}",
+            "topicos": "={{ $json.topicos }}",
+            "decisoes": "={{ $json.decisoes }}",
+            "tarefas": "={{ $json.tarefas }}",
+            "pendencias": "={{ $json.pendencias }}",
+            "email": "={{ $json.email_destino }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "data_processamento",
+              "displayName": "data_processamento",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "arquivo",
+              "displayName": "arquivo",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "resumo",
+              "displayName": "resumo",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "topicos",
+              "displayName": "topicos",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "decisoes",
+              "displayName": "decisoes",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "tarefas",
+              "displayName": "tarefas",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "pendencias",
+              "displayName": "pendencias",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1088,
+        -96
+      ],
+      "id": "1b3a8a30-cbc2-4c58-ab64-1607a977c094",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "tFNIbQAjQIQTNLBO",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.email_destino }}",
+        "subject": "=Resumo da reunião - {{ $json.arquivo }}",
+        "message": "={{\n` \n<h2>Meeting Assistant - Ata da Reunião 📨🌸</h2>\n\n<p><strong>Arquivo:</strong> ${$json.arquivo}</p>\n\n<p><strong>Data do processamento:</strong>\n${$json.data_processamento}</p>\n\n<hr>\n\n<h3>Resumo</h3>\n<p>${$json.resumo}</p>\n\n<h3>Principais assuntos</h3>\n<p>${($json.topicos || '').replace(/\\n/g, '<br>')}</p>\n\n<h3>Decisões</h3>\n<p>${($json.decisoes || '').replace(/\\n/g, '<br>')}</p>\n\n<h3>Tarefas</h3>\n<p>${($json.tarefas || '').replace(/\\n/g, '<br>')}</p>\n\n<h3>Pendências</h3>\n<p>${($json.pendencias || '').replace(/\\n/g, '<br>')}</p>\n\n<hr>\n<p><small>Relatório gerado automaticamente pelo Meeting Assistant.</small></p>\n`\n}}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1088,
+        96
+      ],
+      "id": "ceae15b7-b303-4d30-870c-d4ec738d3abe",
+      "name": "Send a message",
+      "webhookId": "082e6cac-3da6-4509-9ab9-96f958938b9d",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "Om5eJFil8cvsdZJG",
+          "name": "Gmail account 2"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "3ab5b391-cdef-49c3-b68c-90b4934cb9d4",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "7d575babd9b845fa6f04372fde3cb78902dd26ec3e46fdb2559a864ff2f82691"
+  },
+  "nodeGroups": [],
+  "id": "MZKLwoupnNmGKNQX",
+  "tags": []
+}
