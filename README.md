@@ -18,12 +18,12 @@ The application receives a transcript file, uses a language model to interpret i
 - **Data storage:** save the results in Google Sheets.
 - **Email delivery:** automatically send the meeting summary to the email address provided in the form.
 
-## Technologies
+## Stack
 
 | Technology | Purpose |
 |---|---|
 | n8n | Workflow orchestration and automation |
-| Google Gemini API | Transcript processing using an LLM |
+| `gemini-3.8-flash` | Transcript processing using an LLM |
 | Google Sheets | Data storage |
 | Gmail | Email delivery |
 | JavaScript | Data manipulation and structuring in Code nodes |
@@ -40,8 +40,8 @@ The workflow consists of the following steps:
 6. **Google Sheets:** stores the structured information.
 7. **Gmail:** sends the meeting summary to the email address provided in the form.
 
+<img width="1358" height="415" alt="image" src="https://github.com/user-attachments/assets/72082351-1ef0-4ebe-98db-d389149bdf79" />
 
-**imagem
 
 ## Data Structure
 
@@ -87,3 +87,8 @@ To run the workflow, the following are required:
 Configure the following integrations in n8n:
 - Google Gemini API
 - Google OAuth2 credentials.
+
+## Demonstration
+### Mail sent
+<img width="1231" height="648" alt="image" src="https://github.com/user-attachments/assets/ef07cc8c-7b9f-4b86-94e5-ea69459e8ea1" />
+
